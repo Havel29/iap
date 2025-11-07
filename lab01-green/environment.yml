@@ -1,0 +1,26 @@
+name: iap
+channels:
+  - conda-forge
+  - ankurankan
+  - https://www.inf.unibz.it/~dlanti/ia/ia-tools/conda-channel/
+dependencies:
+  - python>=3.7
+  - clingo
+  - fast-downward
+  - gym
+  - joblib
+  - jupyterlab
+  - jupytext
+  - matplotlib
+  - nltk
+  - pandas
+  - pgmpy
+  - pip
+  - pyglet
+  - python-graphviz
+  - scikit-learn
+  - seaborn
+  - tensorflow
+  - z3-solver
+  - pip:
+    - wumpus[gym] @ git+https://gitlab.inf.unibz.it/Davide.Lanti1/wumpus-tessaris.git@master
