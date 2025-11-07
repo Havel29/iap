@@ -1,0 +1,58 @@
+(define (problem wumpus-c-1)
+  (:domain wumpus-c)
+  (:objects sq-1-1 sq-1-2 sq-1-3
+	    sq-2-1 sq-2-2 sq-2-3
+	    sq-3-1 sq-3-2 sq-3-3
+	    the-gold the-arrow
+	    agent wumpus)
+  (:init 
+
+	(adj-east sq-1-1 sq-2-1)
+	(adj-east sq-1-2 sq-2-2)
+	(adj-east sq-1-3 sq-2-3)
+	(adj-east sq-2-1 sq-3-1)	
+	(adj-east sq-2-2 sq-3-2)
+	(adj-east sq-2-3 sq-3-3)
+
+	(adj-west sq-2-1 sq-1-1)
+	(adj-west sq-2-2 sq-1-2)
+	(adj-west sq-2-3 sq-1-3)
+	(adj-west sq-3-1 sq-2-1)	
+	(adj-west sq-3-2 sq-2-2)
+	(adj-west sq-3-3 sq-2-3)
+
+	(adj-south sq-1-2 sq-1-1)
+	(adj-south sq-1-3 sq-1-2)	
+	(adj-south sq-2-2 sq-2-1)
+	(adj-south sq-2-3 sq-2-2)
+	(adj-south sq-3-2 sq-3-1)
+	(adj-south sq-3-3 sq-3-2)
+	
+	(adj-north sq-1-1 sq-1-2)
+	(adj-north sq-1-2 sq-1-3)
+	(adj-north sq-2-1 sq-2-2)
+	(adj-north sq-2-2 sq-2-3)
+	(adj-north sq-3-1 sq-3-2)	
+	(adj-north sq-3-2 sq-3-3) 
+
+	 (origin sq-1-1)
+	 (pit sq-1-2)
+	 (is-gold the-gold)
+	 (at the-gold sq-1-3)
+	 (is-agent agent)
+	 (at agent sq-1-1)
+	 (is-arrow the-arrow)
+	 (have agent the-arrow)
+	 (is-wumpus wumpus)
+	 (at wumpus sq-2-2)
+	 (wumpus-in sq-2-2)
+	 
+	 (= (total-cost) 0)
+	 (direction-north agent)
+	
+    
+    )
+  
+  (:goal (and (hasClimbed)(have agent the-gold) (at agent sq-1-1)))
+  (:metric minimize (total-cost))
+  )

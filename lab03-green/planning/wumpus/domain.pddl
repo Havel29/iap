@@ -1,0 +1,246 @@
+;; Wumpus domain
+
+(define (domain wumpus-c)
+  (:requirements :strips )
+  (:predicates
+   (at ?what ?square) 
+   (adj-north ?square1 ?square2)
+   (adj-south ?square1 ?square2)
+   (adj-west ?square1 ?square2)
+   (adj-east ?square1 ?square2)
+   (pit ?square)
+   (wumpus-in ?square)
+     ;; <-> (exists ?x (and (is-wumpus ?x) (at ?x ?square) (not (dead ?x))
+   (have ?who ?what)
+   (is-agent ?who)
+   (is-wumpus ?who)
+   (is-gold ?what)
+   (is-arrow ?what)
+   (dead ?who)
+   (origin ?square)
+   (direction-north ?who)
+   (direction-south ?who)
+   (direction-east ?who)
+   (direction-west ?who)
+   (hasRotatedYet)
+   (hasClimbed) 
+   
+   )
+  
+  (:functions 
+   (total-cost) - number
+   )
+  
+  ;Function for moving agent north
+  (:action move-agent-north
+    :parameters (?who ?from ?to)
+    :precondition (and (is-agent ?who)
+		       (at ?who ?from)
+		       (not (pit ?to))
+		       (not (wumpus-in ?to))
+		       (adj-north ?from ?to)
+		       (direction-north ?who)
+		       )
+    :effect (and (not (at ?who ?from))
+		 (at ?who ?to)
+		 (increase (total-cost) 1)
+		 )
+    )
+  
+    
+  (:action move-agent-south
+    :parameters (?who ?from ?to)
+    :precondition (and (is-agent ?who)
+		       (at ?who ?from)
+		       (not (pit ?to))
+		       (not (wumpus-in ?to))		       
+		       (adj-south ?from ?to)
+		       (direction-south ?who)
+		       )
+    :effect (and (not (at ?who ?from))
+		 (at ?who ?to)
+		 (increase (total-cost) 1)
+		 )
+    )
+    
+  (:action move-agent-east
+    :parameters (?who ?from ?to)
+    :precondition (and (is-agent ?who)
+		       (at ?who ?from) 
+		       (not (pit ?to))
+		       (not (wumpus-in ?to))		       
+		       (adj-east ?from ?to)
+		       (direction-east ?who) 
+		       )
+    :effect (and (not (at ?who ?from))
+		 (at ?who ?to)
+		 (increase (total-cost) 1)
+		 )
+    )
+  
+  (:action move-agent-west
+    :parameters (?who ?from ?to)
+    :precondition (and (is-agent ?who)
+		       (at ?who ?from) 
+		       (not (pit ?to))
+		       (not (wumpus-in ?to))		       
+		       (adj-west ?from ?to)
+		       (direction-west ?who) 
+		       )
+    :effect (and (not (at ?who ?from))
+		 (at ?who ?to)
+		 (increase (total-cost) 1)
+		 )
+    )
+  
+  (:action climb-action-init
+      :parameters (?who ?origin-sq)
+     :precondition (and (at ?who ?origin-sq) (is-agent ?who) (origin ?origin-sq) )
+	  :effect (and (increase (total-cost) 1000) (hasClimbed))
+  )
+  
+  (:action climb-action-with-gold
+      :parameters (?who ?origin-sq ?the-gold)
+      :precondition (and 
+           (is-agent ?who)
+		       (have ?who ?the-gold)
+		       (is-gold ?the-gold)
+		       (at ?who ?origin-sq)
+		       (origin ?origin-sq)
+		       )
+		       
+      :effect (and (increase (total-cost) 1) (hasClimbed) )
+  )
+  
+  (:action rotate-right
+      :parameters (?who)
+      :precondition (and (is-agent ?who))
+      :effect (and
+      (not(hasRotatedYet))
+      (when
+        (direction-north ?who)
+        (and(not(direction-north ?who))(direction-east ?who)(hasRotatedYet))
+      )
+      (when
+        (and(direction-east ?who)(not(hasRotatedYet)))
+        (and(not(direction-east ?who))(direction-south ?who)(hasRotatedYet))
+      )
+      (when
+        (and(direction-south ?who)(not(hasRotatedYet)))
+        (and(not(direction-south ?who))(direction-west ?who)(hasRotatedYet))
+      )
+      (when
+        (and(direction-west ?who)(not(hasRotatedYet)))
+        (and(not(direction-west ?who))(direction-north ?who)(hasRotatedYet))
+      )
+      (increase (total-cost) 1)
+      )
+  )
+
+  (:action rotate-left
+      :parameters (?who)
+      :precondition (and (is-agent ?who))
+      :effect (and
+      (not(hasRotatedYet))
+      (when
+        (direction-north ?who)
+        (and(not(direction-north ?who))(direction-west ?who)(hasRotatedYet))
+      )
+      (when
+        (and(direction-west ?who)(not(hasRotatedYet)))
+        (and(not(direction-west ?who))(direction-south ?who)(hasRotatedYet))
+      )
+      (when
+        (and(direction-south ?who)(not(hasRotatedYet)))
+        (and(not(direction-south ?who))(direction-east ?who)(hasRotatedYet))
+      )
+      (when
+        (and(direction-east ?who)(not(hasRotatedYet)))
+        (and(not(direction-east ?who))(direction-north ?who)(hasRotatedYet))
+      )
+      (increase (total-cost) 1)
+      )
+  )
+  
+  (:action take
+    :parameters (?who ?what ?where)
+    :precondition (and (is-agent ?who)
+		       (at ?who ?where)
+		       (at ?what ?where)
+		       (is-gold ?what)
+		       )
+    :effect (and (have ?who ?what)
+		 (not (at ?what ?where))
+		 (increase (total-cost) 1)
+		 )
+    )
+
+  (:action shoot_N
+    :parameters (?who ?where ?with-what ?victim ?where-victim)
+    :precondition (and (is-agent ?who)
+		       (have ?who ?with-what)
+		       (is-arrow ?with-what)
+		       (at ?who ?where)
+		       (is-wumpus ?victim)
+		       (at ?victim ?where-victim)
+		       (adj-north ?where ?where-victim)
+		       )
+    :effect (
+         and (dead ?victim)
+		 (not (wumpus-in ?where-victim))
+		 (not (have ?who ?with-what))
+		 (increase (total-cost) 10)
+		 )
+    )
+    (:action shoot_E
+    :parameters (?who ?where ?with-what ?victim ?where-victim)
+    :precondition (and (is-agent ?who)
+		       (have ?who ?with-what)
+		       (is-arrow ?with-what)
+		       (at ?who ?where)
+		       (is-wumpus ?victim)
+		       (at ?victim ?where-victim)
+		       (adj-east ?where ?where-victim)
+		       )
+    :effect (
+         and (dead ?victim)
+		 (not (wumpus-in ?where-victim))
+		 (not (have ?who ?with-what))
+		 (increase (total-cost) 10)
+		 )
+    )
+    (:action shoot_W
+    :parameters (?who ?where ?with-what ?victim ?where-victim)
+    :precondition (and (is-agent ?who)
+		       (have ?who ?with-what)
+		       (is-arrow ?with-what)
+		       (at ?who ?where)
+		       (is-wumpus ?victim)
+		       (at ?victim ?where-victim)
+		       (adj-west ?where ?where-victim)
+		       )
+    :effect (
+         and (dead ?victim)
+		 (not (wumpus-in ?where-victim))
+		 (not (have ?who ?with-what))
+		 (increase (total-cost) 10)
+		 )
+    )
+    (:action shoot_S
+    :parameters (?who ?where ?with-what ?victim ?where-victim)
+    :precondition (and (is-agent ?who)
+		       (have ?who ?with-what)
+		       (is-arrow ?with-what)
+		       (at ?who ?where)
+		       (is-wumpus ?victim)
+		       (at ?victim ?where-victim)
+		       (adj-south ?where ?where-victim)
+		       )
+    :effect (
+         and (dead ?victim)
+		 (not (wumpus-in ?where-victim))
+		 (not (have ?who ?with-what))
+		 (increase (total-cost) 10)
+		 )
+    )  
+)
